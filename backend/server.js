@@ -29,10 +29,10 @@ app.get('/books', async (req, res) => {
 // Ajouter un livre
 app.post('/books', async (req, res) => {
     try {
-        const { title, author, publish_date, is_available, category } = req.body;
+        const { title, author, published_date, is_available, category } = req.body;
 
         // Validation des données
-        if (!title || !author || !publish_date || typeof is_available !== 'boolean' || !category) {
+        if (!title || !author || !published_date || typeof is_available !== 'boolean' || !category) {
             return res.status(400).json({
                 success: false,
                 error: {
@@ -52,7 +52,7 @@ app.post('/books', async (req, res) => {
             });
         }
 
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(publish_date)) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(published_date)) {
             return res.status(400).json({
                 success: false,
                 error: {
@@ -79,8 +79,8 @@ app.post('/books', async (req, res) => {
 
         // Insertion dans la base de données
         const result = await pool.query(
-            'INSERT INTO books (title, author, publish_date, is_available, category) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [title, author, publish_date, is_available, category]
+            'INSERT INTO books (title, author, published_date, is_available, category) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [title, author, published_date, is_available, category]
         );
         res.status(201).json({
             success: true,
@@ -108,11 +108,29 @@ app.post('/books', async (req, res) => {
     }
 });
 
+//trouver un livre par son id: 
+
+app.get('/books/:id', async (req, res) => {
+    const {id} = req.params; //récupère l'id à partir de l'url
+
+    try{
+        const result = await pool.query('SELECT * FROM books WHERE id = $1',[id]);
+        
+        if(result.rows.length === 0){
+            return res.status(404).json({message: "livre non trouvé"});
+        }
+        res.json(result.rows[0]); //Retourne le livre trouvé
+    } catch(error){
+        console.error(error);
+        res.status
+    }
+})
+
 
 // Mettre à jour un livre
 app.put('/books/:id', async (req, res) => {
     const { id } = req.params;
-    const { title, author, publish_date, is_available, category } = req.body;
+    const { title, author, published_date, is_available, category } = req.body;
 
     try {
         // Vérifier si le livre existe avant de mettre à jour
@@ -122,8 +140,8 @@ app.put('/books/:id', async (req, res) => {
         }
 
         const result = await pool.query(
-            `UPDATE books SET title = $1, author = $2, publish_date = $3, is_available = $4, category = $5 WHERE id = $6 RETURNING *`,
-            [title, author, publish_date, is_available, category, id]
+            `UPDATE books SET title = $1, author = $2, published_date = $3, is_available = $4, category = $5 WHERE id = $6 RETURNING *`,
+            [title, author, published_date, is_available, category, id]
         );
 
         res.json(result.rows[0]);
@@ -133,27 +151,30 @@ app.put('/books/:id', async (req, res) => {
     }
 });
 
-// Supprimer un livre
+// Supprimer un livre par ID
 app.delete('/books/:id', async (req, res) => {
+    const { id } = req.params;
+
     try {
-        const { id } = req.params;
-
-        if (isNaN(id)) {
-            return res.status(400).json({ message: 'ID invalide' });
-        }
-
-        const result = await pool.query('DELETE FROM books WHERE id = $1 RETURNING *', [id]);
-
-        if (result.rows.length === 0) {
+        // Vérifier si le livre existe avant de supprimer
+        const checkBook = await pool.query('SELECT * FROM books WHERE id = $1', [id]);
+        if (checkBook.rows.length === 0) {
             return res.status(404).json({ message: 'Livre non trouvé' });
         }
 
-        res.status(204).json({ message: 'Livre supprimé avec succès' });
+        // Suppression du livre
+        await pool.query('DELETE FROM books WHERE id = $1', [id]);
+
+        // Réinitialiser l'ID pour recommencer à zéro après suppression de tous les livres
+        await pool.query("SELECT setval(pg_get_serial_sequence('books', 'id'), 1, false)");
+
+        res.status(200).json({ message: 'Livre supprimé avec succès' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erreur serveur', error });
     }
 });
+
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
