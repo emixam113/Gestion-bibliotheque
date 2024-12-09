@@ -8,8 +8,8 @@
       <label for="author">Auteur</label>
       <input id="author" v-model="author" type="text" placeholder="Auteur" required />
 
-      <label for="publish_date">Date de publication</label>
-      <input id="publish_date" v-model="publish_date" type="date" required />
+      <label for="published_date">Date de publication</label>
+      <input id="published_date" v-model="published_date" type="date" required />
 
       <label for="is_available">Disponibilité</label>
       <select v-model="is_available">
@@ -32,9 +32,9 @@ export default {
     return {
       title: '',
       author: '',
-      publish_date: '', // Nom du champ dans le formulaire
+      published_date: '',  // Nom cohérent avec la base de données
       is_available: true,
-      category: '' // Modèle category
+      category: ''
     };
   },
   methods: {
@@ -48,7 +48,7 @@ export default {
           body: JSON.stringify({
             title: this.title,
             author: this.author,
-            published_date: this.publish_date, // Ici, on envoie "published_date" au lieu de "publish_date"
+            published_date: this.published_date,  // Utilisation de published_date ici
             is_available: this.is_available,
             category: this.category
           })
@@ -69,9 +69,9 @@ export default {
     resetForm() {
       this.title = '';
       this.author = '';
-      this.publish_date = ''; // Réinitialisation de publish_date
+      this.published_date = '';  // Réinitialisation de published_date
       this.is_available = true;
-      this.category = ''; // Réinitialisation de category
+      this.category = '';
     }
   }
 };

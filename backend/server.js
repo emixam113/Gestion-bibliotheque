@@ -16,10 +16,16 @@ app.use(cors());
 app.use(express.json());
 
 // Récupérer tous les livres
-app.get('/books', async (req, res) => {
+app.get('/books/:id', async (req, res) => {
+    const { id } = req.params; // récupère l'id à partir de l'url
+
     try {
-        const result = await pool.query('SELECT * FROM books');
-        res.json(result.rows);
+        const result = await pool.query('SELECT * FROM books WHERE id = $1', [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Livre non trouvé' });
+        }
+        return res.json(result.rows[0]); // Retourne le livre trouvé
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Erreur serveur', error });

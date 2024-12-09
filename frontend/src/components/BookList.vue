@@ -92,21 +92,19 @@ export default {
     }
   },
   mounted() {
-    this.refreshBooks(); // Récupérer les livres au montage
+    this.fetchBooks();
   },
   methods: {
-    // Fonction centrale pour récupérer les livres et appliquer les filtres
-    async refreshBooks() {
+    async fetchBooks() {
       try {
         const response = await fetch('http://localhost:3000/books');
         const data = await response.json();
         this.books = data;
-        this.applyFilters(); // Appliquer les filtres après récupération des livres
+        this.filteredBooks = data;
       } catch (error) {
         console.error('Erreur lors de la récupération des livres', error);
       }
     },
-    // Appliquer les filtres sur les livres
     applyFilters() {
       this.filteredBooks = this.books.filter(book => {
         const matchesSearch =
@@ -137,7 +135,9 @@ export default {
         });
 
         if (response.ok) {
-          await this.refreshBooks(); // Rafraîchir la liste après ajout
+          const newBook = await response.json();
+          this.books.push(newBook);
+          this.applyFilters();
           this.newBook = { title: '', author: '', category: '', is_available: false };
           alert('Livre ajouté avec succès');
         } else {
@@ -157,7 +157,8 @@ export default {
           });
 
           if (response.ok) {
-            await this.refreshBooks(); // Rafraîchir la liste après suppression
+            this.books = this.books.filter(book => book.id !== bookId);
+            this.applyFilters();
             alert('Livre supprimé avec succès');
           } else {
             const errorData = await response.json();
@@ -181,7 +182,10 @@ export default {
         });
 
         if (response.ok) {
-          await this.refreshBooks(); // Rafraîchir la liste après mise à jour
+          const updatedBook = await response.json();
+          const index = this.books.findIndex(book => book.id === updatedBook.id);
+          this.books.splice(index, 1, updatedBook); // Mettre à jour le livre dans la liste
+          this.applyFilters();
           this.editingBook = null; // Fermer le formulaire d'édition
           alert('Livre mis à jour avec succès');
         } else {
@@ -199,3 +203,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+/* Ajoutez ici votre style pour améliorer l'apparence du composant */
+button {
+  margin: 5px;
+}
+</style>
