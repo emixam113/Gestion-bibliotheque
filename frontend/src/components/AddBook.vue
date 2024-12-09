@@ -32,9 +32,9 @@ export default {
     return {
       title: '',
       author: '',
-      publish_date: '',
+      publish_date: '', // Nom du champ dans le formulaire
       is_available: true,
-      category: '' // Ajout du modèle category
+      category: '' // Modèle category
     };
   },
   methods: {
@@ -48,9 +48,9 @@ export default {
           body: JSON.stringify({
             title: this.title,
             author: this.author,
-            publish_date: this.publish_date,
+            published_date: this.publish_date, // Ici, on envoie "published_date" au lieu de "publish_date"
             is_available: this.is_available,
-            category: this.category // Ajout de category dans le corps de la requête
+            category: this.category
           })
         });
 
@@ -69,7 +69,7 @@ export default {
     resetForm() {
       this.title = '';
       this.author = '';
-      this.publish_date = '';
+      this.publish_date = ''; // Réinitialisation de publish_date
       this.is_available = true;
       this.category = ''; // Réinitialisation de category
     }
