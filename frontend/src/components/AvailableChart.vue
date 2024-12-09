@@ -30,8 +30,8 @@ import { Pie } from 'vue-chartjs';
           datasets: [
             {
               data: [availableBooks, unavailableBooks],
-              backgroundColor: ['#4caf50', '#f44336'],  // Vert pour disponible, Rouge pour indisponible
-              hoverBackgroundColor: ['#45a049', '#e53935'],
+              backgroundColor: ['#3af24b', '#f44336'],  // Vert pour disponible, Rouge pour indisponible
+              hoverBackgroundColor: ['#0ffal', '#721c24'],
             },
           ],
         };
@@ -43,7 +43,7 @@ import { Pie } from 'vue-chartjs';
     methods: {
       async fetchBooks() {
         try {
-          const response = await fetch('http://localhost:3000/api/books');
+          const response = await fetch('http://localhost:3000/books');
           const data = await response.json();
           this.books = data;  // Mettre à jour la liste des livres
         } catch (error) {
