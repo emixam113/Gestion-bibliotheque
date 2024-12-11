@@ -20,7 +20,7 @@ import { Pie } from 'vue-chartjs';
       };
     },
     computed: {
-      // On génère les données pour le graphique basé sur la disponibilité
+      
       chartData() {
         const availableBooks = this.books.filter(book => book.is_available).length;
         const unavailableBooks = this.books.length - availableBooks;
@@ -30,8 +30,8 @@ import { Pie } from 'vue-chartjs';
           datasets: [
             {
               data: [availableBooks, unavailableBooks],
-              backgroundColor: ['#3af24b', '#f44336'],  // Vert pour disponible, Rouge pour indisponible
-              hoverBackgroundColor: ['#0ffal', '#721c24'],
+              backgroundColor: ['#6bfc03', '#fc0303'],
+              hoverBackgroundColor: ['#68eb34', '#db0909'],
             },
           ],
         };
@@ -45,7 +45,7 @@ import { Pie } from 'vue-chartjs';
         try {
           const response = await fetch('http://localhost:3000/books');
           const data = await response.json();
-          this.books = data;  // Mettre à jour la liste des livres
+          this.books = data; 
         } catch (error) {
           console.error('Erreur lors de la récupération des livres', error);
         }
